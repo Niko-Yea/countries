@@ -1,40 +1,68 @@
 import { useQuery } from '@apollo/client';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import List from '../components/List';
+import ReactCountryFlag from 'react-country-flag';
+
 import { GET_COUNTRY_BY_CODE } from '../query/countries';
-import { Country, Languages } from '../types/types';
+import { Country, ICountry, Languages } from '../types/types';
+
 import NotFoundView from './NotFoundView';
+import List from '../components/List';
+import Spinner from '../components/Spinner';
+
+import styles from '../sass/_countryPage.module.scss';
 
 const CountryPageView: FC = () => {
   const params = useParams();
 
-  const [country, setCountry] = useState<Country>();
-  const { data, loading, error } = useQuery(GET_COUNTRY_BY_CODE, {
+  const [country, setCountry] = useState<Country | null>(null);
+  const { data, loading, error } = useQuery<ICountry>(GET_COUNTRY_BY_CODE, {
     variables: { countryCode: params.code?.toUpperCase() },
+    onCompleted: result => setCountry((result && result.country) || null),
   });
 
-  useEffect(() => {
-    if (!loading) {
-      setCountry(data.country);
-    }
-  }, [data]);
+  if (loading) {
+    return <Spinner />;
+  }
 
-  return country ? (
-    <div>
-      <h2>{country?.name}</h2>
-      <span>{country?.code}</span>
-      <span>{country?.emoji}</span>
-      <h4>Languages:</h4>
-      <List
-        items={country.languages}
-        renderItem={(language: Languages) => {
-          return <li key={language.code}>{language.name}</li>;
-        }}
-      />
-    </div>
-  ) : (
-    <NotFoundView />
+  if (!country && !loading) {
+    return <NotFoundView />;
+  }
+
+  return (
+    country && (
+      <div className={styles.container}>
+        <div className={styles.titleWrapper}>
+          <h2 className={styles.title}>{country.name}</h2>
+          <ReactCountryFlag
+            className={styles.emoji}
+            countryCode={country.code}
+            style={{
+              fontSize: '100px',
+              height: '75px',
+            }}
+            aria-label={country.code}
+            svg
+          />
+        </div>
+
+        <div className={styles.contentWrapper}>
+          <p>Country code: {country.code}</p>
+          <h4 className={styles.title}>Languages:</h4>
+          <List
+            className={styles.list}
+            items={country.languages}
+            renderItem={(language: Languages) => {
+              return (
+                <li className={styles.listItem} key={language.code}>
+                  {language.name}
+                </li>
+              );
+            }}
+          />
+        </div>
+      </div>
+    )
   );
 };
 

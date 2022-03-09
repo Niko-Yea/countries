@@ -3,22 +3,6 @@ export interface ListItem {
   code: string;
 }
 
-export interface CountriesListProps {
-  countries: ListItem[];
-}
-
-export interface CountryItemProps {
-  country: ListItem;
-}
-
-export interface ContinentsListProps {
-  continents: ListItem[];
-}
-
-export interface ContinentItemProps {
-  continent: ListItem;
-}
-
 export interface Country {
   name: string;
   code: string;
@@ -26,7 +10,28 @@ export interface Country {
   languages: Languages[];
 }
 
+export interface ICountry {
+  country: Country;
+}
+
 export interface Languages {
   name: string;
   code: string;
+}
+
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
+export interface CountriesListProps {
+  countries: ListItem[];
+}
+
+export interface ContinentsListProps {
+  continents: ListItem[];
+}
+
+export interface CountryItemProps {
+  country: ListItem;
 }

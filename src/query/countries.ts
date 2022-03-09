@@ -15,6 +15,7 @@ export const GET_COUNTRY_BY_CODE = gql`
       name
       code
       emoji
+
       languages {
         name
         code

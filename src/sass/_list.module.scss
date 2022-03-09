@@ -1,16 +1,9 @@
-.container {
-  padding-top: 60px;
-  padding-bottom: 60px;
-
-  @media screen and (min-width: 1200px) {
-    padding-top: 94px;
-    padding-bottom: 94px;
-  }
-}
-
 .list {
+  padding: 0;
   @media screen and (max-width: 767px) {
-    margin-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 30px;
   }
 
   @media screen and (min-width: 768px) and (max-width: 1199px) {

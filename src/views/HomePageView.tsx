@@ -1,16 +1,17 @@
 import { useLazyQuery, useQuery } from '@apollo/client';
-import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useState } from 'react';
+import Select from 'react-select';
+
+import { GET_ALL_CONTINENTS, GET_ALL_COUNTRIES, GET_COUNTRIES_BY_CONTINENT } from '../query/countries';
+import { ContinentsListProps, CountriesListProps, ListItem, SelectOption } from '../types/types';
+
 import CountryItem from '../components/CountryItem';
 import List from '../components/List';
-import { GET_ALL_CONTINENTS, GET_ALL_COUNTRIES, GET_COUNTRIES_BY_CONTINENT } from '../query/countries';
-import { ContinentsListProps, CountriesListProps, ListItem } from '../types/types';
-import Select from 'react-select';
 import Filter from '../components/Filter';
+import Spinner from '../components/Spinner';
 
-export interface SelectOption {
-  value: string;
-  label: string;
-}
+import styles from '../sass/_homePage.module.scss';
+import listStyles from '../sass/_list.module.scss';
 
 const HomePageView: FC = () => {
   const initialSelectState: SelectOption = {
@@ -42,18 +43,25 @@ const HomePageView: FC = () => {
     if (!countriesLoading && countriesData) {
       setCountries(countriesData.countries);
     }
+  }, [countriesData]);
 
+  useEffect(() => {
     if (!continentsLoading && continentsData) {
       setContinents(continentsData.continents);
     }
-  }, [countriesData, continentsData]);
+  }, [continentsData]);
 
   useEffect(() => {
-    loadFilteredCountries({ variables: { continentCode: selectValue.value } });
-    if (!filterLoading && filteredData && filteredData.countries.length !== 0) {
+    if (selectValue.value) {
+      loadFilteredCountries({ variables: { continentCode: selectValue.value } });
+    }
+  }, [selectValue]);
+
+  useEffect(() => {
+    if (!filterLoading && filteredData && filteredData.countries.length) {
       setCountriesByContinent(filteredData.countries);
     }
-  }, [selectValue, filterLoading, filteredData]);
+  }, [filteredData]);
 
   const selectedOption: SelectOption[] = continents.map(continent => {
     return {
@@ -67,7 +75,7 @@ const HomePageView: FC = () => {
       setSelectValue(initialSelectState);
       countriesData && setCountries(countriesData?.countries);
     }
-    if (option) {
+    if (option && option.value !== selectValue.value) {
       setSelectValue(option);
     }
   };
@@ -83,26 +91,32 @@ const HomePageView: FC = () => {
     });
   };
 
-  const filteredCountries = () => {
-    return selectValue.value === '' ? filterCountries(allCountries) : filterCountries(countriesByContinent);
+  const getFilteredCountries = () => {
+    return filterCountries(selectValue.value === '' ? allCountries : countriesByContinent);
   };
 
-  console.log('RENDER');
-
   return (
-    <>
-      <Select
-        isClearable
-        onChange={option => handleSelectionChange(option)}
-        options={selectedOption}
-        placeholder="Filter by continent..."
-      />
-      <Filter value={inputValue} onChange={handleInputChange} />
-      <List
-        items={filteredCountries()}
-        renderItem={(country: ListItem) => <CountryItem country={country} key={country.code} />}
-      />
-    </>
+    <div className={styles.container}>
+      <div className={styles.filtres}>
+        <Select
+          className={styles.select}
+          isClearable
+          onChange={option => handleSelectionChange(option)}
+          options={selectedOption}
+          placeholder="Filter by continent..."
+        />
+        <Filter value={inputValue} onChange={handleInputChange} />
+      </div>
+      {getFilteredCountries().length ? (
+        <List
+          className={listStyles.list}
+          items={getFilteredCountries()}
+          renderItem={(country: ListItem) => <CountryItem country={country} key={country.code} />}
+        />
+      ) : (
+        <Spinner />
+      )}
+    </div>
   );
 };
 

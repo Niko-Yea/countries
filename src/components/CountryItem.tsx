@@ -1,19 +1,18 @@
 import { FC } from 'react';
-import { CountryItemProps } from '../types/types';
-import styles from '../sass/_countryItem.module.scss';
 import { Link } from 'react-router-dom';
 
-const CountryItem: FC<CountryItemProps> = ({ country }) => {
-  const generateLinkString = (code: string): string => {
-    const codeToLowerCase = code.toLowerCase();
-    return `/${codeToLowerCase}`;
-  };
+import { CountryItemProps } from '../types/types';
 
+import styles from '../sass/_item.module.scss';
+
+const CountryItem: FC<CountryItemProps> = ({ country }) => {
   return (
     <li className={styles.item}>
-      <Link to={generateLinkString(country.code)}>
-        <p>{country.name}</p>
-        <p>{country.code}</p>
+      <Link className={styles.link} to={`/${country.code.toLowerCase()}`}>
+        <div className={styles.thumb}>
+          <p>{country.name}</p>
+          <span>{country.code}</span>
+        </div>
       </Link>
     </li>
   );
